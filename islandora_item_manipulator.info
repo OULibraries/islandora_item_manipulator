@@ -1,0 +1,6 @@
+name = Islandora Item Manipulator
+description = Read, update, and delete Islandora items
+package = Islandora
+version = VERSION
+core = 7.x
+dependencies[] = islandora

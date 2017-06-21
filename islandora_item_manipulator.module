@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * The OU json recipe importer.
+ */
+
+
+/**
+ * Creates/Updates a book collection.
+ */
+function islandora_item_manipulator_test($object_array, $json_recipe, $parent_collection, $pid_namespace) {
+
+}
