@@ -40,6 +40,7 @@ function drush_islandora_item_manipulator() {
     switch($operation) {
       case "read" :
 	$object = islandora_object_load($pid);
+	print_r($object);
 	return $object;
 	break;
       case "update" :
@@ -47,7 +48,8 @@ function drush_islandora_item_manipulator() {
 	break;
       case "delete" :
 	drupal_set_message("Start to delete the object ".$pid);
- 	$tuque = islandora_get_tuque_connection();
+	drupal_static_reset('islandora_get_tuque_connection'); 
+	$tuque = islandora_get_tuque_connection();
   	if ($tuque) {
     	  try {
 	    return $tuque->repository->purgeObject($pid);
