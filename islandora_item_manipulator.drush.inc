@@ -50,9 +50,10 @@ function drush_islandora_item_manipulator() {
 	drupal_set_message("Start to delete the object ".$pid);
 	drupal_static_reset('islandora_get_tuque_connection'); 
 	$tuque = islandora_get_tuque_connection();
+        $response = "";
   	if ($tuque) {
     	  try {
-	    return $tuque->repository->purgeObject($pid);
+	    $response = $tuque->repository->purgeObject($pid);
     	  }
     	  catch (Exception $e) {
       	    if ($e->getCode() == '404') {
@@ -63,11 +64,11 @@ function drush_islandora_item_manipulator() {
               return NULL;
       	    }
     	  }
+          drupal_set_message("Completed deletion of object ".$pid." at ".$response);
   	}
   	else {
     	  IslandoraTuque::getError();
- 	}
-	drupal_set_message("Completed deletion of object ".$pid);	
+ 	}		
 	break;
       default :
         drupal_set_message("The operation ".$operation." is NOT implemented!");
