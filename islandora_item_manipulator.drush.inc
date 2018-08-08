@@ -102,8 +102,10 @@ function drush_islandora_item_manipulator() {
                         $doc = new DOMDocument();
                         $doc->loadXML($content);
                         $data_fields = $doc->getElementsByTagName($metadata_entry);
-                        $data_field = $data_fields->item($i);
-                        $data_field->nodeValue = $metadata_val;
+                        for($i = 0; $i < $data_fields->length; $i++){
+                            $data_field = $data_fields->item($i);
+                            $data_field->nodeValue = $metadata_val;
+                        }                        
                         $content = $doc->saveXML();
                         $datastream->setContentFromString($content);
                         $object->ingestDatastream($datastream);
