@@ -35,6 +35,10 @@ function islandora_item_manipulator_drush_command() {
         'description' => 'metadata entry value',
         'required' => FALSE,
       ),
+        'parent_node_name' => array(
+        'description' => 'parent xml node of the metadata entry to be modified',
+        'required' => FALSE,
+      ),
     )
   );
 
@@ -87,7 +91,13 @@ function drush_islandora_item_manipulator() {
                  * Metadata types: MODS, DC, RELS-EXT, etc.
                  */
                 $metadata_entry = drush_get_option('entry');
-                $metadata_type = strtoupper(substr($metadata_entry, 0, 2));
+                $metadata_info_arr = explode(":", $metadata_entry);
+                if(!isset($metadata_info_arr) || count($metadata_info_arr) != 2){
+                    throw new Exception("The metadata entry is invalid!", null, null);
+                }
+                $metadata_type = strtoupper($metadata_info_arr[0]);  
+                $metadata_entry_name = $metadata_info_arr[1];
+                        
                 if($metadata_type == null){
                     throw new Exception("The metadata type is NOT defined!", "", "");
                 }                
@@ -101,11 +111,26 @@ function drush_islandora_item_manipulator() {
                     try{
                         $doc = new DOMDocument();
                         $doc->loadXML($content);
-                        $data_fields = $doc->getElementsByTagName($metadata_entry);
-                        for($i = 0; $i < $data_fields->length; $i++){
-                            $data_field = $data_fields->item($i);
-                            $data_field->nodeValue = $metadata_val;
-                        }                        
+                        $data_fields = $doc->getElementsByTagName($metadata_entry_name);
+                        if($data_fields->length == 0){
+                            $parent_node_name = drush_get_option('parent_node_name');
+                            if(!isset($parent_node_name)){
+                                throw new Exception("Cannot insert the new metadata node into datastream without parent node name", null, null);
+                            }
+                            $node_list = $doc->getElementsByTagName($parent_node_name);
+                            if(!isset($node_list) || $node_list->length == 0){
+                                throw new Exception("Cannot find parent node from metadata datastream with parent node name: ".$parent_node_name, null, null);
+                            }
+                            $parent = $node_list->item(0);
+                            $element = $doc->createElement($metadata_entry, $metadata_val);                            
+                            $parent->appendChild($element);
+                        }
+                        else{
+                            for($i = 0; $i < $data_fields->length; $i++){
+                                $data_field = $data_fields->item($i);
+                                $data_field->nodeValue = $metadata_val;
+                            }  
+                        }                                              
                         $content = $doc->saveXML();
                         $datastream->setContentFromString($content);
                         $object->ingestDatastream($datastream);
