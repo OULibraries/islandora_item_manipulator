@@ -146,7 +146,7 @@ function drush_islandora_item_manipulator() {
                 if(empty($model) || $model !== "collectionCModel"){
                     throw new Exception("This is not a valid collection object!", NULL, NULL);
                 }
-                module_load_include('module', 'collectionCModelStart', 'collectionCModelStart');
+                module_load_include('module', 'islandora_basic_collection', 'islandora_basic_collection');
                 $results = islandora_basic_collection_get_member_objects($object, 0, 100, 'manage');
                 if(empty($results) || !is_array($results) || count($results) != 2){
                     throw new Exception("Cannot retrieve valid member objects from collection: ".$object->id, NULL, NULL);
@@ -154,6 +154,7 @@ function drush_islandora_item_manipulator() {
                 $count = $results[0];
                 $objects = $results[1];
                 if($objects){
+                    drupal_set_message("Start to modify the metadata of the member objects of collection ".$object->id);
                     module_load_include('inc', 'islandora_item_manipulator', 'includes/utilities');
                     $metadata_array = Array();
                     $metadata_array['entry'] = drush_get_option('entry');
@@ -161,6 +162,7 @@ function drush_islandora_item_manipulator() {
                     $metadata_array['parent_node_name'] = drush_get_option('parent_node_name');
                     collection_members_result_metadata_updater($objects, $metadata_array);
                 }
+                drupal_set_message("Finished processing metadata modification.");
 //                print_r($results);
                 break;
             default :
