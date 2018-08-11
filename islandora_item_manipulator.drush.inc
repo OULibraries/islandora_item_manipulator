@@ -154,7 +154,7 @@ function drush_islandora_item_manipulator() {
                 $count = $results[0];
                 $objects = $results[1];
                 if($objects){
-                    module_load_include('inc', 'islandora_item_manipulator', 'islandora_item_manipulator/includes');
+                    module_load_include('inc', 'islandora_item_manipulator', 'includes/utilities');
                     $metadata_array = Array();
                     $metadata_array['entry'] = drush_get_option('entry');
                     $metadata_array['value'] = drush_get_option('value');
