@@ -134,11 +134,34 @@ function drush_islandora_item_manipulator() {
                         $content = $doc->saveXML();
                         $datastream->setContentFromString($content);
                         $object->ingestDatastream($datastream);
-                        print_r($doc);
                     } catch (Exception $ex) {
                         throw new Exception($ex->getMessage(), null, null);
                     }
                 }
+                break;
+            case "collection_objects_metadata":
+                module_load_include('inc', 'islandora_embed', 'includes/response_generator');
+                $fedoraObjExt = new FedoraObjectExtended($object->id, $object->repository);
+                $model = $fedoraObjExt->getFedoraObjectModel(); 
+                if(empty($model) || $model !== "collectionCModel"){
+                    throw new Exception("This is not a valid collection object!", NULL, NULL);
+                }
+                module_load_include('module', 'collectionCModelStart', 'collectionCModelStart');
+                $results = islandora_basic_collection_get_member_objects($object, 0, 100, 'manage');
+                if(empty($results) || !is_array($results) || count($results) != 2){
+                    throw new Exception("Cannot retrieve valid member objects from collection: ".$object->id, NULL, NULL);
+                }
+                $count = $results[0];
+                $objects = $results[1];
+                if($objects){
+                    module_load_include('inc', 'islandora_item_manipulator', 'islandora_item_manipulator/includes');
+                    $metadata_array = Array();
+                    $metadata_array['entry'] = drush_get_option('entry');
+                    $metadata_array['value'] = drush_get_option('value');
+                    $metadata_array['parent_node_name'] = drush_get_option('parent_node_name');
+                    collection_members_result_metadata_updater($objects, $metadata_array);
+                }
+//                print_r($results);
                 break;
             default :
                 drupal_set_message("The update operation for ".$update_option." has NOT been implemented!");
